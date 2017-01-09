@@ -27,7 +27,6 @@
 @property (nonatomic) BOOL absurdLineMode;
 @property (nonatomic) BOOL visualFxMode;
 @property (nonatomic) BOOL buttonTintMode;
-@property (nonatomic) BOOL allowAnimationInteraction;
 
 @property (nonatomic, weak) UIView* clippingView;
 
@@ -54,7 +53,7 @@ NSString* const CIRCLE_MENU_TAP_MODE = @"kCircleMenuTapMode";
 NSString* const CIRCLE_MENU_LINE_MODE = @"kCircleMenuLineMode";
 NSString* const CIRCLE_MENU_BACKGROUND_BLUR = @"kCircleMenuBackgroundBlur";
 NSString* const CIRCLE_MENU_BUTTON_TINT = @"kCircleMenuButtonTint";
-NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnimationInteraction";
+NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
 
 @implementation CKCircleMenuView
 
@@ -83,6 +82,9 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
                 case CircleMenuDirectionLeft:
                     self.startingAngle = 270.0;
                     break;
+                case CircleMenuDirectionCustom:
+                    self.startingAngle = [[anOptionsDictionary valueForKey:CIRCLE_MENU_START_ANGLE] doubleValue];
+                    break;
             }
             self.depth = [[anOptionsDictionary valueForKey:CIRCLE_MENU_DEPTH] boolValue];
             self.buttonRadius = [[anOptionsDictionary valueForKey:CIRCLE_MENU_BUTTON_RADIUS] doubleValue];
@@ -94,7 +96,6 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
             }
             self.visualFxMode = [[anOptionsDictionary valueForKey:CIRCLE_MENU_BACKGROUND_BLUR] boolValue];
             self.buttonTintMode = [[anOptionsDictionary valueForKey:CIRCLE_MENU_BUTTON_TINT] boolValue];
-            self.allowAnimationInteraction = [[anOptionsDictionary valueForKey:CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION] boolValue];
         } else {
             // using some default settings
             self.innerViewColor = [UIColor colorWithRed:0.0 green:0.25 blue:0.5 alpha:1.0];
@@ -111,19 +112,18 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
             self.absurdLineMode = NO;
             self.visualFxMode = NO;
             self.buttonTintMode = NO;
-            self.allowAnimationInteraction = NO;
         }
     }
     return self;
 }
 
-- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary *)anOptionsDictionary withImageArray:(NSArray *)anImageArray
+- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary *)anOptionsDictionary withImageArray:(NSArray *)anImageArray andWithColors:(NSArray *)aColorArray
 {
     self = [self initWithOptions:anOptionsDictionary];
     if (self) {
         int tTag = 1;
         for (UIImage* img in anImageArray) {
-            UIView* tView = [self createButtonViewWithImage:img andTag:tTag];
+            UIView* tView = [self createButtonViewWithImage:img andTag:tTag andColor: aColorArray[tTag - 1]];
             [self.buttons addObject:tView];
             tTag += 1;
         }
@@ -133,7 +133,7 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
     return self;
 }
 
-- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary *)anOptionsDictionary withImages:(UIImage *)anImage, ...
+- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary *)anOptionsDictionary andWithColors:(NSArray *)aColorArray withImages:(UIImage *)anImage, ...
 {
     self = [self initWithOptions:anOptionsDictionary];
     if (self) {
@@ -141,7 +141,7 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
         va_list args;
         va_start(args, anImage);
         for (UIImage* img = anImage; img != nil; img = va_arg(args, UIImage*)) {
-            UIView* tView = [self createButtonViewWithImage:img andTag:tTag];
+            UIView* tView = [self createButtonViewWithImage:img andTag:tTag andColor: aColorArray[tTag - 1]];
             [self.buttons addObject:tView];
             tTag += 1;
         }
@@ -183,7 +183,7 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
  * @param aTag unique identifier (should be index + 1)
  * @return UIView to be used as button
  */
-- (UIView*)createButtonViewWithImage:(UIImage*)anImage andTag:(int)aTag
+- (UIView*)createButtonViewWithImage:(UIImage*)anImage andTag:(int)aTag andColor:(UIColor*)aColor
 {
     UIButton* tButton;
     if (self.buttonTintMode) {
@@ -204,7 +204,7 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
     tButton.tag = aTag + TAG_BUTTON_OFFSET;
 
     UIView* tInnerView = [[CKRoundView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.buttonRadius * 2, self.buttonRadius * 2)];
-    tInnerView.backgroundColor = self.innerViewColor;
+    tInnerView.backgroundColor = aColor;
     tInnerView.opaque = YES;
     tInnerView.clipsToBounds = NO;
     tInnerView.layer.cornerRadius = self.buttonRadius;
@@ -353,7 +353,7 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
     CGFloat tDelay = 0.0;
     for (UIView* tButtonView in self.buttons) {
         tDelay = tDelay + self.animationDelay;
-        [UIView animateWithDuration:0.6 delay:tDelay usingSpringWithDamping:0.5 initialSpringVelocity:0.8 options:UIViewAnimationOptionCurveEaseOut|(self.allowAnimationInteraction ? UIViewAnimationOptionAllowUserInteraction : 0) animations:^{
+        [UIView animateWithDuration:0.6 delay:tDelay usingSpringWithDamping:0.5 initialSpringVelocity:0.8 options:UIViewAnimationOptionCurveEaseOut animations:^{
             tButtonView.alpha = 1.0;
             tButtonView.transform = CGAffineTransformIdentity;
         } completion:^(BOOL finished) {
@@ -486,7 +486,9 @@ NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION = @"kCircleMenuAllowAnim
         // set as hover tag for activation animation
         self.hoverTag = tTag;
     }
-    [self closeMenu];
+    if ([self.delegate circleMenuWillClose:tTag-1]) {
+        [self closeMenu];
+    }
 }
 
 /**

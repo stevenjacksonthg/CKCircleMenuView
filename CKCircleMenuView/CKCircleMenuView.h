@@ -26,6 +26,13 @@
  */
 - (void)circleMenuClosed;
 
+/**
+ * Gets called when the CircleMenu will be closed. This is called
+ * before the menu disappears from view. The return determines
+ * if the menu view will continue the close process.
+ */
+- (bool)circleMenuWillClose:(int)buttonIndex;
+
 @end
 
 // Constants used for the configuration dictionary
@@ -43,13 +50,14 @@ extern NSString* const CIRCLE_MENU_TAP_MODE;
 extern NSString* const CIRCLE_MENU_LINE_MODE;
 extern NSString* const CIRCLE_MENU_BACKGROUND_BLUR;
 extern NSString* const CIRCLE_MENU_BUTTON_TINT;
-extern NSString* const CIRCLE_MENU_ALLOW_ANIMATION_INTERACTION;
+extern NSString* const CIRCLE_MENU_START_ANGLE;
 
 typedef enum {
     CircleMenuDirectionUp = 1,
     CircleMenuDirectionRight,
     CircleMenuDirectionDown,
-    CircleMenuDirectionLeft
+    CircleMenuDirectionLeft,
+    CircleMenuDirectionCustom
 } CircleMenuDirection;
 
 @interface CKCircleMenuView : UIView
@@ -64,7 +72,7 @@ typedef enum {
  *                used for the buttons, currently icon images should
  *                be 32x32 points (64x64 px for retina)
  */
-- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary*)anOptionsDictionary withImages:(UIImage*)anImage, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary*)anOptionsDictionary andWithColors:(NSArray *)aColorArray withImages:(UIImage*)anImage, ... NS_REQUIRES_NIL_TERMINATION;
 
 /**
  * Initializes the CKCircleMenuView.
@@ -74,7 +82,7 @@ typedef enum {
  *                     currently icon images should be 32x32 points
  *                     (64x64 px for retina)
  */
-- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary*)anOptionsDictionary withImageArray:(NSArray*)anImageArray;
+- (id)initAtOrigin:(CGPoint)aPoint usingOptions:(NSDictionary*)anOptionsDictionary withImageArray:(NSArray*)anImageArray andWithColors:(NSArray *)aColorArray;
 
 /**
  * Opens the menu with the buttons and settings specified in the

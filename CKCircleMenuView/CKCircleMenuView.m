@@ -201,6 +201,7 @@ NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
     }
 
     [tButton setImage:anImage forState:UIControlStateNormal];
+    [tButton setImage:anImage forState:UIControlStateHighlighted];
     tButton.tag = aTag + TAG_BUTTON_OFFSET;
 
     UIView* tInnerView = [[CKRoundView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.buttonRadius * 2, self.buttonRadius * 2)];
@@ -371,6 +372,7 @@ NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
  */
 - (void)closeMenu
 {
+    [self.delegate circleMenuWillClose];
     if (!self.tapMode) {
         [self.recognizer removeTarget:self action:@selector(gestureChanged:)];
     }
@@ -388,6 +390,11 @@ NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
             [self.delegate circleMenuClosed];
         }
     }];
+}
+
+- (UIButton*)getButton:(int)index
+{
+    return self.buttons[index];
 }
 
 - (void)gestureMovedToPoint:(CGPoint)aPoint

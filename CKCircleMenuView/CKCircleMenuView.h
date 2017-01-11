@@ -33,6 +33,12 @@
  */
 - (bool)circleMenuWillClose:(int)buttonIndex;
 
+/**
+ * Gets called when the CircleMenu will be closed without clicking
+ * one of the buttons.
+ */
+- (void)circleMenuWillClose;
+
 @end
 
 // Constants used for the configuration dictionary
@@ -106,6 +112,11 @@ typedef enum {
  * Offers the possibility to close the menu externally.
  */
 - (void)closeMenu;
+
+/**
+ * Get a button from the menu by index
+ */
+- (UIButton*)getButton:(int)index;
 
 @end
 

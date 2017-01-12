@@ -220,7 +220,7 @@ NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
     [tInnerView addSubview:tButton];
 
     if (self.tapMode) {
-        [tButton addTarget:self action:@selector(circleButtonTapped:) forControlEvents:UIControlEventTouchDown];
+        [tButton addTarget:self action:@selector(circleButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
         UITapGestureRecognizer* temporaryRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
         [self addGestureRecognizer:temporaryRecognizer];
     }
@@ -440,18 +440,18 @@ NSString* const CIRCLE_MENU_START_ANGLE = @"kCircleMenuStartAngle";
 - (void)applyInactiveDepthToButtonView:(UIView*)aView
 {
     aView.layer.shadowColor = [[UIColor blackColor] CGColor];
-    aView.layer.shadowOffset = CGSizeMake(4,2);
+    aView.layer.shadowOffset = CGSizeMake(0,4);
     aView.layer.shadowRadius = 8;
-    aView.layer.shadowOpacity = 0.35;
+    aView.layer.shadowOpacity = 0.4;
     aView.layer.affineTransform = CGAffineTransformMakeScale(1.0, 1.0);
 }
 
 - (void)applyActiveDepthToButtonView:(UIView*)aView
 {
     aView.layer.shadowColor = [[UIColor blackColor] CGColor];
-    aView.layer.shadowOffset = CGSizeMake(2,1);
+    aView.layer.shadowOffset = CGSizeMake(0,2);
     aView.layer.shadowRadius = 5;
-    aView.layer.shadowOpacity = 0.42;
+    aView.layer.shadowOpacity = 0.52;
     aView.layer.affineTransform = CGAffineTransformMakeScale(0.985, 0.985);
 }
 
